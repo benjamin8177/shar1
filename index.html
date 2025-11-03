@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sharni yor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #155ed3, #071021);
+      font-family: 'Poppins', sans-serif;
+      color: white;
+    }
+
+    .game-box {
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(circle at top, #10223a, #060d18);
+      border: 2px solid #1e293b;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-bar {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 15px;
+      font-size: 18px;
+      font-weight: 600;
+      z-index: 10;
+    }
+
+    .balloon {
+      position: absolute;
+      bottom: -80px;
+      font-size: 40px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s;
+    }
+
+    .balloon:hover {
+      transform: scale(1.3);
+    }
+
+    button {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background: #ff4d4d;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #ff6b6b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-box">
+    <div class="info-bar">
+      <div>Ball: <span id="score">0</span></div>
+      <div>Vaqt: <span id="time">30</span>s</div>
+    </div>
+
+    <button id="startBtn">Boshlash</button>
+  </div>
+
+  <script>
+    const box = document.querySelector('.game-box');
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const startBtn = document.getElementById('startBtn');
+
+    let score = 0;
+    let timeLeft = 30;
+    let running = false;
+    let spawnInterval, timerInterval;
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function createBalloon() {
+      const balloon = document.createElement('div');
+      balloon.className = 'balloon';
+      balloon.textContent = '🎈';
+      balloon.style.left = random(20, box.clientWidth - 40) + 'px';
+
+      box.appendChild(balloon);
+
+      const duration = random(4000, 8000);
+      balloon.animate([{ bottom: '-80px' }, { bottom: '110%' }], {
+        duration,
+        easing: 'linear',
+      });
+
+      balloon.addEventListener('click', () => {
+        score++;
+        scoreEl.textContent = score;
+        balloon.remove();
+      });
+
+      setTimeout(() => balloon.remove(), duration);
+    }
+
+    function startGame() {
+      if (running) return;
+      running = true;
+      score = 0;
+      timeLeft = 30;
+      scoreEl.textContent = score;
+      timeEl.textContent = timeLeft;
+      startBtn.disabled = true;
+      startBtn.textContent = "O'yin davom etmoqda...";
+
+      spawnInterval = setInterval(createBalloon, 800);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+    }
+
+    function endGame() {
+      running = false;
+      clearInterval(spawnInterval);
+      clearInterval(timerInterval);
+      document.querySelectorAll('.balloon').forEach(b => b.remove());
+      alert(`O'yin tugadi! Sizning ballingiz: ${score}`);
+      startBtn.disabled = false;
+      startBtn.textContent = 'Qayta o‘ynash';
+    }
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+
+</body>
+</html>
